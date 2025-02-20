@@ -16,3 +16,10 @@ export const MysqlDataSource = new DataSource({
     migrations: ['src/modules/infrastructure/database/migrations/*.ts'],    // Ruta de las migraciones
     subscribers: ["/subscribers/*.{ts,js}"],  // Ruta de los suscriptores (opcional)
 });
+
+export async function initializeDataSource() {
+    if (!MysqlDataSource.isInitialized) {
+      await MysqlDataSource.initialize();
+      console.log("MysqlDataSource inicializado correctamente.");
+    }
+}

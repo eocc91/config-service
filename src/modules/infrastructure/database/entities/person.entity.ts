@@ -1,3 +1,4 @@
+import { Person } from '@domain/models/person';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({name: 'configuration_persons'})
@@ -11,6 +12,6 @@ export class PersonEntity {
     @Column({name: 'last_name', type: 'varchar', length: 100})
     lastName!: string;
     @Column({name: 'second_last_name', type: 'varchar', length: 100})
-    secondLastName!: string;
-    
+    secondLastName!: string;    
+
 }

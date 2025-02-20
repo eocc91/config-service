@@ -1,15 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 import { PersonEntity } from './person.entity';
 
 @Entity({name: 'configuration_users'})
 export class UserEntity {
     @PrimaryGeneratedColumn({name: 'id_user', type: 'int'})
     idUser!: number;
-    @OneToOne(() => PersonEntity, person => person.idPerson)
+    @ManyToOne(() => PersonEntity, person => person.idPerson, {cascade: ['insert', 'update']})
     @JoinColumn({name: 'id_person'})
-    person!: PersonEntity;
-    @Column({name: 'name', type: 'varchar', length: 100})
-    name!: string;
+    person!: PersonEntity;   
     @Column({name: 'username', type: 'varchar', length: 100})
     username!: string;
     @Column({name: 'email', type: 'varchar', length: 100})
@@ -26,4 +24,5 @@ export class UserEntity {
     token!: string;
     @Column({name: 'validation_pin', type: 'varchar', length: 6})
     validationPin!: string
+    
 }
