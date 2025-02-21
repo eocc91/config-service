@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { User } from "../../../domain/models/user";
 import { UserRepository } from "../../../domain/ports/outbound/user.repository";
 import { UserEntity } from '@entities/user.entity';
@@ -12,15 +12,27 @@ export class UserMySqlRepository implements UserRepository{
     }
 
     async getAll(params: any): Promise<User[]> {
-        let where = {};
-        if(params.username){
-            where = {...where, username: params.username };
+        const query = this.userRepository.createQueryBuilder("user")
+            .leftJoinAndSelect("user.person", "person");
+    
+        if (params.username) {
+            query.andWhere("user.username = :username", { username: params.username });
         }
-        if(params.email){
-            where = {...where, email: params.email };
+        if (params.email) {
+            query.andWhere("user.email LIKE :email", { email: `%${params.email}%` });
         }
-        const users = await this.userRepository.find({where});
-        return User.toModelArray(users)
+        if (params.status) {
+            query.andWhere("user.status = :status", { status: params.status });
+        }
+        if (params.name) {
+            query.andWhere(
+                "CONCAT(person.firstName, ' ', person.middleName, ' ', person.lastName, ' ', person.secondLastName) LIKE :name",
+                { name: `%${params.name}%` }
+            );
+        }
+    
+        const users = await query.getMany();
+        return User.toModelArray(users);
     }
 
     async getById(idUser: number): Promise<any> {

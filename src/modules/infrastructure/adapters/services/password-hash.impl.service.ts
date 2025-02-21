@@ -2,9 +2,6 @@ import { PasswordHashService } from '@domain/ports/inbound/password-hash.service
 import bcrypt from 'bcrypt';
 
 export class PasswordHashServiceImpl implements PasswordHashService {
-  comparePasswords(hashedPassword: string, providedPassword: string): Promise<boolean> {
-      throw new Error('Method not implemented.');
-  }
   private readonly saltRounds = 10; // Número de rondas de hashing (puedes ajustar según el rendimiento deseado)
 
   /**
@@ -24,7 +21,7 @@ export class PasswordHashServiceImpl implements PasswordHashService {
    * @param hash El hash almacenado
    * @returns `true` si coinciden, `false` en caso contrario
    */
-  async comparePassword(password: string, hash: string): Promise<boolean> {
+  async comparePasswords(password: string, hash: string): Promise<boolean> {
     return bcrypt.compare(password, hash);
   }
 }

@@ -33,8 +33,7 @@ type Injectable = {
   
           return resolve(dependencyProvider); // Resuelve la dependencia recursivamente
         });
-        const instance = provider.useFactory(...dependencies);
-        console.log(instance.isInitialized); 
+        const instance = provider.useFactory(...dependencies);        
         resolved.set(key, instance); // Almacena la instancia resuelta
         return instance;
       }
@@ -102,38 +101,49 @@ export async function registerModules(app: express.Application, modules: any[]) 
                 
                 // Definimos las rutas usando los métodos decorados
                 if (controllerInstance.routes) {
-                    controllerInstance.routes.forEach((route: any) => {
-                        const dynamicRoute: keyof express.Application = route.method;                                        
-                        app[dynamicRoute](baseRoute + route.path, async (req: Request, res: Response) => {
-                            const args: any[] = [];                        
-                            if( route.requestParams ){
-                                route.requestParams.forEach((param: any) => {                                
+                  controllerInstance.routes.forEach((route: any) => {
+                    const dynamicRoute: keyof express.Application = route.method;
+                    app[dynamicRoute](baseRoute + route.path, async (req: Request, res: Response) => {
+                        const args: any[] = [];
+                
+                        // Manejar requestParams
+                        if (route.requestParams) {
+                            route.requestParams.forEach((param: any) => {
+                                if (args[param.parameterIndex] === undefined) { // Solo asignar si no está definido
                                     args[param.parameterIndex] = param.paramName
                                         ? req.params[param.paramName]
                                         : req.params;
-                                });
-                            }
-    
-                            if (route.requestBody) {                            
-                                route.requestBody.forEach((bodyParam: any) => {
+                                }
+                            });
+                        }
+                
+                        // Manejar requestBody
+                        if (route.requestBody) {
+                            route.requestBody.forEach((bodyParam: any) => {
+                                if (args[bodyParam.parameterIndex] === undefined) { // Solo asignar si no está definido
                                     args[bodyParam.parameterIndex] = bodyParam.paramName
-                                    ? req.body[bodyParam.paramName]
-                                    : req.body;
-                                });
-                            }
-    
-                            if (route.queryParams) {                            
-                                route.queryParams.forEach((bodyParam: any) => {
-                                    args[bodyParam.parameterIndex] = bodyParam.paramName
-                                    ? req.query[bodyParam.paramName]
-                                    : req.query;
-                                });
-                            }
-                            const result = await controllerInstance[route.handler.name](...args);
-                            res.json(result);
-                        });
-                                           
+                                        ? req.body[bodyParam.paramName]
+                                        : req.body;
+                                }
+                            });
+                        }
+                
+                        // Manejar queryParams
+                        if (route.queryParams) {
+                            route.queryParams.forEach((queryParam: any) => {
+                                if (args[queryParam.parameterIndex] === undefined) { // Solo asignar si no está definido
+                                    args[queryParam.parameterIndex] = queryParam.paramName
+                                        ? req.query[queryParam.paramName]
+                                        : req.query;
+                                }
+                            });
+                        }
+                
+                        // Llamar al controlador con los argumentos construidos
+                        const result = await controllerInstance[route.handler.name](...args);
+                        res.json(result);
                     });
+                });
                 }
             }
             

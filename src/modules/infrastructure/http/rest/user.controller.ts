@@ -5,10 +5,8 @@ import { Get } from "../../../shared/decorators/get.decorator";
 import { RequestParams } from "../../../shared/decorators/request-params.decorator";
 import { Body } from "../../../shared/decorators/body.decorator";
 import { Put } from "../../../shared/decorators/put.decorator";
-import { Delete } from "../../../shared/decorators/delete.decorator";
 import { QueryParams } from "../../../shared/decorators/query-params.decorator";
 import { UserUseCase } from "@application/user.usecase";
-import { UserService } from "@domain/ports/inbound/user.service";
 import { User } from "@domain/models/user";
 import { ResponseBody } from "src/modules/shared/response/response-body";
 import { UserException } from "@domain/exceptions/user.exception";
@@ -75,6 +73,115 @@ export class UserController {
                 return {
                     status: 500,
                     message: "Error al guardar el usuario",
+                    error: error
+                }
+            }
+        }
+
+    }
+
+    @Put('/:idUser')
+    async update( @Body() user: User, @RequestParams('idUser') idUser: number ): Promise<ResponseBody> {
+        try {
+            let newUser = await this.userUseCase.update(idUser, user);
+            return {
+                status: 200,
+                message: 'El usuario se guardo correctamente',
+                data: newUser
+
+            }
+        } catch (error: any) {
+            console.log(error)
+            if( error instanceof UserException) {
+                return {
+                    status: 400,
+                    message: error.message
+                }
+            } else {
+                return {
+                    status: 500,
+                    message: "Error al guardar el usuario",
+                    error: error.message
+                }
+            }
+        }
+
+    }
+
+    @Put('/enable/:idUser')
+    async enable( @RequestParams('idUser') idUser: number ): Promise<ResponseBody> {
+        try {
+            let newUser = await this.userUseCase.enable(idUser);
+            return {
+                status: 200,
+                message: 'El usuario se habilitó correctamente',
+                data: newUser
+
+            }
+        } catch (error: any) {
+            if( error instanceof UserException) {
+                return {
+                    status: 400,
+                    message: error.message
+                }
+            } else {
+                return {
+                    status: 500,
+                    message: "Error al habilitar el usuario",
+                    error: error
+                }
+            }
+        }
+
+    }
+
+    @Put('/disable/:idUser')
+    async disable( @RequestParams('idUser') idUser: number ): Promise<ResponseBody> {
+        try {
+            let newUser = await this.userUseCase.disable(idUser);
+            return {
+                status: 200,
+                message: 'El usuario se deshabilitó correctamente',
+                data: newUser
+
+            }
+        } catch (error: any) {
+            if( error instanceof UserException) {
+                return {
+                    status: 400,
+                    message: error.message
+                }
+            } else {
+                return {
+                    status: 500,
+                    message: "Error al deshabilitar el usuario",
+                    error: error
+                }
+            }
+        }
+
+    }
+
+    @Put('/delete/:idUser')
+    async delete( @RequestParams('idUser') idUser: number ): Promise<ResponseBody> {
+        try {
+            let newUser = await this.userUseCase.delete(idUser);
+            return {
+                status: 200,
+                message: 'El usuario se eliminó correctamente',
+                data: newUser
+
+            }
+        } catch (error: any) {
+            if( error instanceof UserException) {
+                return {
+                    status: 400,
+                    message: error.message
+                }
+            } else {
+                return {
+                    status: 500,
+                    message: "Error al eliminar el usuario",
                     error: error
                 }
             }
